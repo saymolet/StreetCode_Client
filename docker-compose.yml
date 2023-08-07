@@ -1,0 +1,65 @@
+services:
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+  frontend:
+    # awaiting a centralized Docker repo. Populate in deployment for now.
+    # Due to changes in frontend Dockerfile, saymolet/streetcode_client:1608 image can be used.
+    image: saymolet/streetcode_client:latest
+    pull_policy: always
+    expose:
+      - "80"
+    healthcheck:
+      test: curl --fail http://localhost || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+  backend:
+    # awaiting a centralized Docker repo.
+    # Already existing image nazarsheremet/streetcode:1607 can be used for now.
+    image: saymolet/streetcode:latest
+    pull_policy: always
+    expose:
+      - "80"
+        #ports:
+        # - "5000:80"
+    environment:
+      STREETCODE_ConnectionStrings__DefaultConnection: ${DB_CONNECTION_STRING}
+      STREETCODE_Blob__BlobStoreKey: ${BLOB_STORAGE_KEY}
+      STREETCODE_Blob__BlobStorePath: /mnt/data/
+      STREETCODE_Instagram__InstagramID: ${INSTAGRAM_ID}
+      STREETCODE_Instagram__InstagramToken: ${INSTAGRAM_TOKEN}
+      STREETCODE_Payment__Token: ${PAYMENT_TOKEN}
+      STREETCODE_CORS__AllowedOrigins: '["*"]'
+      STREETCODE_CORS__AllowedHeaders: '["*"]'
+      STREETCODE_CORS__AllowedMethods: '["*"]'
+      STREETCODE_CORS__PreflightMaxAge: 1
+    volumes:
+      - type: bind
+        source: /imagestorage
+        target: /mnt/data
+    healthcheck:
+      test: curl --fail http://localhost/api/partners/getAll || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+volumes:
+  backend:
+networks:
+  backend:
+    external:
+      name: backend
+  frontend:
+    external:
+      name: frontend
