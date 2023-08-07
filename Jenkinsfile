@@ -12,5 +12,24 @@ pipeline {
                 }
             }
         }
+        stage('Docker push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-login-saymolet', passwordVariable: 'password', usernameVariable: 'username')]){
+                    sh 'echo "${password} | docker login -u ${username} --password-stdin"'
+                    sh "docker push saymolet/streetcode_client:${env.DATETAG}"     
+                }
+            }
+        }
+        stage('Docker prune') {
+            steps {
+                sh "docker compose down"   
+                sh "docker system prune --force --filter "until=168h"   
+            }
+        }
+        stage('Docker compose up') {
+            steps {
+                sh "docker compose up -d"   
+            }
+        }
     }
 }
