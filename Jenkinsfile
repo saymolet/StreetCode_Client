@@ -23,7 +23,7 @@ pipeline {
         stage('Docker prune') {
             steps {
                 sh "docker compose down"   
-                sh "docker system prune --force --filter "until=168h"   
+                sh 'docker system prune --force --filter "until=168h"'
             }
         }
         stage('Docker compose up') {
