@@ -28,7 +28,6 @@ pipeline {
         }
         stage('Docker compose up') {
             steps {
-                sh "docker compose pull"
                 sh "DOCKER_TAG=${env.DATETAG} docker compose up -d"   
             }
         }
