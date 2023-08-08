@@ -45,7 +45,7 @@ services:
       STREETCODE_CORS__AllowedHeaders: '["*"]'
       STREETCODE_CORS__AllowedMethods: '["*"]'
       STREETCODE_CORS__PreflightMaxAge: 1
-      STREETCODE_IPRATELIMITING__GENERALRULES__0__LIMIT: 10000
+      STREETCODE_IPRATELIMITING__GENERALRULES__0__LIMIT: 500
     volumes:
       - type: bind
         source: /imagestorage
