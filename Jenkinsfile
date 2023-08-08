@@ -7,7 +7,7 @@ pipeline {
             steps {
                 script {
                     Date date = new Date()
-                    env.DATETAG = date.format("HH-dd-MM-yy", TimeZone.getTimeZone('GMT+3'))
+                    env.DATETAG = date.format("dd-MM-yy", TimeZone.getTimeZone('GMT+3'))
                     sh "docker build -t saymolet/streetcode_client:${env.DATETAG} ."
                 }
             }
@@ -15,7 +15,7 @@ pipeline {
         stage('Docker push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-login-saymolet', passwordVariable: 'password', usernameVariable: 'username')]){
-                    sh 'echo "${password} | docker login -u ${username} --password-stdin"'
+                    sh 'echo "${password}" | docker login -u ${username} --password-stdin'
                     sh "docker push saymolet/streetcode_client:${env.DATETAG}"     
                 }
             }
@@ -29,7 +29,7 @@ pipeline {
         stage('Docker compose up') {
             steps {
                 sh "docker compose pull"
-                sh "docker compose up -d"   
+                sh "DOCKER_TAG=${env.DATETAG} docker compose up -d"   
             }
         }
     }
