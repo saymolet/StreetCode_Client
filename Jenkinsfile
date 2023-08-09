@@ -22,17 +22,5 @@ pipeline {
                 }
             }
         }
-        stage('Docker prune') {
-            steps {
-                sh 'docker image prune --force --filter "until=72h"'
-                sh 'docker system prune --force --filter "until=72h"'
-                sh 'docker compose down'
-            }
-        }
-        stage('Docker compose up') {
-            steps {
-                sh "docker compose --env-file /etc/environment up -d"   
-            }
-        }
     }
 }
