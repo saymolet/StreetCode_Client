@@ -5,30 +5,33 @@ pipeline {
     stages {
         stage('Docker build') {
             steps {
-                script {
-                    Date date = new Date()
-                    env.DATETAG = date.format("dd-MM-yy", TimeZone.getTimeZone('GMT+3'))
-                    sh "docker build -t saymolet/streetcode_client:${env.DATETAG} ."
-                }
+                sh "docker build -t saymolet/streetcode_client:latest ."
             }
         }
         stage('Docker push') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-login-saymolet', passwordVariable: 'password', usernameVariable: 'username')]){
-                    sh 'echo "${password}" | docker login -u ${username} --password-stdin'
-                    sh "docker push saymolet/streetcode_client:${env.DATETAG}"     
+                script {
+                    Date date = new Date()
+                    env.DATETAG = date.format("dd-MM-yy", TimeZone.getTimeZone('GMT+3'))
+                    withCredentials([usernamePassword(credentialsId: 'docker-login-saymolet', passwordVariable: 'password', usernameVariable: 'username')]){
+                        sh 'echo "${password}" | docker login -u ${username} --password-stdin'
+                        sh "docker push saymolet/streetcode_client:latest"
+                        sh "docker tag saymolet/streetcode:latest saymolet/streetcode_client:${env.DATETAG}"
+                        sh "docker push saymolet/streetcode_client:${env.DATETAG}"  
+                    }
                 }
             }
         }
         stage('Docker prune') {
             steps {
-                sh "docker compose down"   
-                sh 'docker system prune --force --filter "until=168h"'
+                sh 'docker image prune --force --filter "until=72h"'
+                sh 'docker system prune --force --filter "until=72h"'
+                sh 'docker compose down'
             }
         }
         stage('Docker compose up') {
             steps {
-                sh "DOCKER_TAG=${env.DATETAG} docker compose --env-file /etc/environment up -d"   
+                sh "docker compose --env-file /etc/environment up -d"   
             }
         }
     }
