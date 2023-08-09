@@ -8,6 +8,14 @@ pipeline {
                 sh "docker build -t saymolet/streetcode_client:latest ."
             }
         }
+        stage('Docker prune') {
+            steps {
+                script {
+                    sh 'docker image prune --force --all --filter "until=72h"'
+                    sh 'docker system prune --force --all --filter "until=72h"'
+                }
+            }
+        }
         stage('Docker push') {
             steps {
                 script {
