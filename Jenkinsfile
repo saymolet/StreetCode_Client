@@ -24,7 +24,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'docker-login-saymolet', passwordVariable: 'password', usernameVariable: 'username')]){
                         sh 'echo "${password}" | docker login -u ${username} --password-stdin'
                         sh "docker push saymolet/streetcode_client:latest"
-                        sh "docker tag saymolet/streetcode:latest saymolet/streetcode_client:${env.DATETAG}"
+                        sh "docker tag saymolet/streetcode_client:latest saymolet/streetcode_client:${env.DATETAG}"
                         sh "docker push saymolet/streetcode_client:${env.DATETAG}"  
                     }
                 }
