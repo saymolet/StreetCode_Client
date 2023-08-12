@@ -5,7 +5,11 @@ pipeline {
     stages {
         stage('Docker build') {
             steps {
-                sh "docker build -t saymolet/streetcode_client:latest ."
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-login-streetcode', passwordVariable: 'password', usernameVariable: 'username')]){
+                        sh "docker build -t ${username}/streetcode_client:latest ."
+                    }
+                }
             }
         }
         stage('Docker prune') {
@@ -23,9 +27,9 @@ pipeline {
                     env.DATETAG = date.format("HH-dd-MM-yy", TimeZone.getTimeZone('GMT+3'))
                     withCredentials([usernamePassword(credentialsId: 'docker-login-streetcode', passwordVariable: 'password', usernameVariable: 'username')]){
                         sh 'echo "${password}" | docker login -u ${username} --password-stdin'
-                        sh "docker push saymolet/streetcode_client:latest"
-                        sh "docker tag saymolet/streetcode_client:latest saymolet/streetcode_client:${env.DATETAG}"
-                        sh "docker push saymolet/streetcode_client:${env.DATETAG}"  
+                        sh "docker push ${username}/streetcode_client:latest"
+                        sh "docker tag ${username}/streetcode_client:latest ${username}/streetcode_client:${env.DATETAG}"
+                        sh "docker push ${username}/streetcode_client:${env.DATETAG}"  
                     }
                 }
             }
