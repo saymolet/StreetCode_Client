@@ -5,7 +5,7 @@
   alt="SoftServe IT Academy">
 </a>
 
-# Streetcode!
+# Streetcode!!
 
 This is a front-end part of our Streetcode project.
 Back-end part: https://github.com/ita-social-projects/StreetCode.git.
