@@ -14,9 +14,7 @@ services:
       - ./certbot/www:/var/www/certbot/:ro
       - ./certbot/conf/:/etc/nginx/ssl/:ro
   frontend:
-    # awaiting a centralized Docker repo. Populate in deployment for now.
-    # Due to changes in frontend Dockerfile, saymolet/streetcode_client:1608 image can be used.
-    image: saymolet/streetcode_client:latest
+    image: saymolet/streetcode_client:${DOCKER_TAG_FRONTEND}
     pull_policy: always
     expose:
       - "80"
@@ -26,9 +24,7 @@ services:
       timeout: 10s
       retries: 5
   backend:
-    # awaiting a centralized Docker repo.
-    # Already existing image nazarsheremet/streetcode:1607 can be used for now.
-    image: saymolet/streetcode:latest
+    image: saymolet/streetcode:${DOCKER_TAG_BACKEND}
     pull_policy: always
     expose:
       - "80"
