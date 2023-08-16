@@ -1,25 +1,35 @@
 services:
-  frontend:
-    image: nazarsheremet/streetcode_client:${DOCKER_TAG_FRONTEND}
-    pull_policy: always
+  certbot:
+    image: certbot/certbot:latest
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+  nginx:
+    image: nginx:latest
     ports:
-      - "80:3000"
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+  frontend:
+    image: saymolet/streetcode_client:${DOCKER_TAG_FRONTEND}
+    pull_policy: always
     expose:
-      - "3000"
+      - "80"
     healthcheck:
       test: curl --fail http://localhost || exit 1
       interval: 30s
       timeout: 10s
       retries: 5
-    environment:
-      API_URL: ${ENV_API_BACKEND}
   backend:
-    image: nazarsheremet/streetcode:${DOCKER_TAG_BACKEND}
+    image: saymolet/streetcode:${DOCKER_TAG_BACKEND}
     pull_policy: always
     expose:
       - "80"
-    ports:
-    - "5000:80"
+        #ports:
+        # - "5000:80"
     environment:
       STREETCODE_ConnectionStrings__DefaultConnection: ${DB_CONNECTION_STRING}
       STREETCODE_Blob__BlobStoreKey: ${BLOB_STORAGE_KEY}
